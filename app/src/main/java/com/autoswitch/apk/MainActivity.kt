@@ -31,12 +31,9 @@ class MainActivity : AppCompatActivity() {
     ) { permissions ->
         val allGranted = permissions.entries.all { it.value }
         if (allGranted) {
-            Toast.makeText(this, "All permissions granted!", Toast.LENGTH_SHORT).show()
-            prefs.logEvent("Permissions granted by user.")
+            Toast.makeText(this, "Permissions granted!", Toast.LENGTH_SHORT).show()
+            prefs.logEvent("Permissions granted.")
             loadSimInformation()
-        } else {
-            Toast.makeText(this, "Some permissions were denied. SIM detection may be limited.", Toast.LENGTH_LONG).show()
-            prefs.logEvent("Warning: Some permissions denied.")
         }
     }
 
@@ -57,25 +54,22 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateNetworkStatus()
-        refreshLogs()
     }
 
     private fun setupUI() {
-        // Restore saved Auto-Switch toggle state
+        // Service switch toggle
         binding.switchAutoService.isChecked = prefs.isAutoSwitchEnabled
         binding.switchAutoService.setOnCheckedChangeListener { _, isChecked ->
             prefs.isAutoSwitchEnabled = isChecked
+            updateAutoSwitchDisplay()
             if (isChecked) {
                 startMonitoringService()
-                prefs.logEvent("Auto-Switch Service Enabled.")
             } else {
                 stopMonitoringService()
-                prefs.logEvent("Auto-Switch Service Disabled.")
             }
-            refreshLogs()
         }
 
-        // Restore SIM Selection
+        // SIM selection radio buttons
         if (prefs.preferredSimSlot == 0) {
             binding.rbSim1.isChecked = true
         } else {
@@ -86,36 +80,33 @@ class MainActivity : AppCompatActivity() {
             val slotIndex = if (checkedId == R.id.rbSim1) 0 else 1
             prefs.preferredSimSlot = slotIndex
 
-            // Update subId if available
             val targetSim = availableSims.find { it.slotIndex == slotIndex }
             if (targetSim != null) {
                 prefs.preferredSubId = targetSim.subId
             }
-            prefs.logEvent("Preferred fallback set to SIM ${slotIndex + 1}.")
-            refreshLogs()
-        }
-
-        // Action Buttons
-        binding.btnGrantPermissions.setOnClickListener {
-            checkPermissions()
-        }
-
-        binding.btnTestSwitch.setOnClickListener {
-            val selectedSlot = prefs.preferredSimSlot
-            val selectedSubId = prefs.preferredSubId
-            Toast.makeText(this, "Testing SIM Switch to SIM ${selectedSlot + 1}...", Toast.LENGTH_SHORT).show()
-            simSwitchManager.switchToSim(selectedSubId, selectedSlot)
-            refreshLogs()
+            updateAutoSwitchDisplay()
         }
 
         binding.btnOpenSimSettings.setOnClickListener {
             simSwitchManager.openSimSettings()
         }
+
+        updateAutoSwitchDisplay()
+    }
+
+    private fun updateAutoSwitchDisplay() {
+        val selectedSimText = if (prefs.preferredSimSlot == 0) "SIM 1" else "SIM 2"
+        if (prefs.isAutoSwitchEnabled) {
+            binding.tvAutoSwitchValue.text = "On · $selectedSimText"
+            binding.tvAutoSwitchValue.setTextColor(ContextCompat.getColor(this, R.color.status_green))
+        } else {
+            binding.tvAutoSwitchValue.text = "Off"
+            binding.tvAutoSwitchValue.setTextColor(ContextCompat.getColor(this, R.color.text_muted))
+        }
     }
 
     private fun checkPermissions() {
         val permissionsToRequest = mutableListOf<String>()
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             permissionsToRequest.add(Manifest.permission.READ_PHONE_STATE)
         }
@@ -124,7 +115,6 @@ class MainActivity : AppCompatActivity() {
                 permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
-
         if (permissionsToRequest.isNotEmpty()) {
             permissionLauncher.launch(permissionsToRequest.toTypedArray())
         }
@@ -132,22 +122,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadSimInformation() {
         availableSims = simSwitchManager.getAvailableSims()
-        if (availableSims.isNotEmpty()) {
-            val sim1 = availableSims.find { it.slotIndex == 0 }
-            val sim2 = availableSims.find { it.slotIndex == 1 }
+        val sim1 = availableSims.find { it.slotIndex == 0 }
+        val sim2 = availableSims.find { it.slotIndex == 1 }
 
-            binding.rbSim1.text = sim1?.let { "SIM 1: ${it.carrierName}" } ?: "SIM 1 (Not Inserted)"
-            binding.rbSim2.text = sim2?.let { "SIM 2: ${it.carrierName}" } ?: "SIM 2 (Not Inserted)"
-
-            val activeDataSim = availableSims.find { it.isDataSim }
-            if (activeDataSim != null) {
-                binding.tvActiveSimStatus.text = "Active Mobile Data SIM: Slot ${activeDataSim.slotIndex + 1} (${activeDataSim.carrierName})"
-            } else {
-                binding.tvActiveSimStatus.text = "Active Mobile Data SIM: Slot ${prefs.preferredSimSlot + 1}"
-            }
-        } else {
-            binding.tvActiveSimStatus.text = "Active Mobile Data SIM: Slot ${prefs.preferredSimSlot + 1} (Grant Read Phone Permission)"
-        }
+        binding.rbSim1.text = sim1?.let { "SIM 1: ${it.carrierName}" } ?: "SIM 1"
+        binding.rbSim2.text = sim2?.let { "SIM 2: ${it.carrierName}" } ?: "SIM 2"
     }
 
     private fun updateNetworkStatus() {
@@ -156,17 +135,30 @@ class MainActivity : AppCompatActivity() {
         val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
 
         val isWifiConnected = capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
+        val isCellularConnected = capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true
 
         if (isWifiConnected) {
-            binding.tvWifiStatus.text = "Wi-Fi: Connected"
-            binding.tvWifiBadge.text = "CONNECTED"
-            binding.tvWifiBadge.setTextColor(ContextCompat.getColor(this, R.color.status_green))
-            binding.tvWifiBadge.setBackgroundColor(0x3310B981)
+            binding.tvWifiStatus.text = "Wi-Fi Connected"
+            binding.tvWifiSubText.text = "Connected via Wi-Fi"
+            binding.tvInternetValue.text = "Available"
+            binding.tvInternetValue.setTextColor(ContextCompat.getColor(this, R.color.status_green))
+            binding.ivStatusOrb.setImageResource(android.R.drawable.ic_menu_compass)
+            binding.ivStatusOrb.setColorFilter(ContextCompat.getColor(this, R.color.status_green))
+        } else if (isCellularConnected) {
+            val selectedSimText = if (prefs.preferredSimSlot == 0) "SIM 1" else "SIM 2"
+            binding.tvWifiStatus.text = "Mobile Data"
+            binding.tvWifiSubText.text = "Connected via $selectedSimText"
+            binding.tvInternetValue.text = "Available"
+            binding.tvInternetValue.setTextColor(ContextCompat.getColor(this, R.color.status_green))
+            binding.ivStatusOrb.setImageResource(android.R.drawable.ic_menu_send)
+            binding.ivStatusOrb.setColorFilter(ContextCompat.getColor(this, R.color.accent))
         } else {
-            binding.tvWifiStatus.text = "Wi-Fi: Disconnected"
-            binding.tvWifiBadge.text = "DISCONNECTED"
-            binding.tvWifiBadge.setTextColor(ContextCompat.getColor(this, R.color.status_red))
-            binding.tvWifiBadge.setBackgroundColor(0x33EF4444)
+            binding.tvWifiStatus.text = "No Connection"
+            binding.tvWifiSubText.text = "Offline — no internet"
+            binding.tvInternetValue.text = "Unavailable"
+            binding.tvInternetValue.setTextColor(ContextCompat.getColor(this, R.color.status_red))
+            binding.ivStatusOrb.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
+            binding.ivStatusOrb.setColorFilter(ContextCompat.getColor(this, R.color.status_red))
         }
     }
 
@@ -182,9 +174,5 @@ class MainActivity : AppCompatActivity() {
     private fun stopMonitoringService() {
         val serviceIntent = Intent(this, WifiMonitorService::class.java)
         stopService(serviceIntent)
-    }
-
-    private fun refreshLogs() {
-        binding.tvLogs.text = prefs.getLogs()
     }
 }
