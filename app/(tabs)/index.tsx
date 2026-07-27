@@ -146,7 +146,7 @@ export default function HomeScreen() {
             ]}
           >
             <MaterialCommunityIcons
-              name={isWifi ? 'wifi' : isCellular ? 'cellphone-wireless' : 'wifi-off'}
+              name={(isWifi ? 'wifi' : isCellular ? 'cellphone-wireless' : 'wifi-off') as any}
               size={orbSize * 0.38}
               color={statusColor}
             />
