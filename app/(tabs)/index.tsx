@@ -108,7 +108,7 @@ export default function HomeScreen() {
         styles.container,
         {
           backgroundColor: colors.background,
-          paddingTop: Platform.OS === 'web' ? 40 : Math.max(insets.top, 20),
+          paddingTop: Platform.OS === 'web' ? 40 : Math.max(insets.top + 16, 36),
           paddingBottom: Math.max(insets.bottom, 16),
           paddingHorizontal: hPad,
         },

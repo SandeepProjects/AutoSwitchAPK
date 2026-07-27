@@ -36,7 +36,7 @@ export default function SettingsScreen() {
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={{
-        paddingTop: Platform.OS === 'web' ? 40 : Math.max(insets.top, 20),
+        paddingTop: Platform.OS === 'web' ? 40 : Math.max(insets.top + 16, 36),
         paddingBottom: Math.max(insets.bottom, 24),
         paddingHorizontal: 20,
       }}

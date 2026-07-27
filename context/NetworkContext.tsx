@@ -99,13 +99,27 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
     );
   };
 
-  const openMobileSettings = () => {
+  const openMobileSettings = async () => {
     if (Platform.OS === 'android') {
-      Linking.openURL('android.settings.WIRELESS_SETTINGS').catch(() => {
-        Linking.openSettings();
-      });
+      const intents = [
+        'android.settings.DATA_ROAMING_SETTINGS',
+        'android.settings.NETWORK_OPERATOR_SETTINGS',
+        'android.settings.WIRELESS_SETTINGS',
+      ];
+      for (const intentUrl of intents) {
+        try {
+          const supported = await Linking.canOpenURL(intentUrl).catch(() => true);
+          if (supported) {
+            await Linking.openURL(intentUrl);
+            return;
+          }
+        } catch (e) {
+          // Continue to next fallback intent
+        }
+      }
+      Linking.openSettings().catch(() => {});
     } else {
-      Linking.openSettings();
+      Linking.openSettings().catch(() => {});
     }
   };
 

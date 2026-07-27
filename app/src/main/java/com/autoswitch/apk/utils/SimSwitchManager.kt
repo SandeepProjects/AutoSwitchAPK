@@ -125,19 +125,29 @@ class SimSwitchManager(private val context: Context) {
     }
 
     /**
-     * Launches device Network / SIM Settings screen.
+     * Launches device Network / SIM Settings screen with fallbacks for Vivo/iQOO, Xiaomi, Samsung, and stock Android.
      */
     fun openSimSettings() {
-        try {
-            val intent = Intent(Settings.ACTION_WIRELESS_SETTINGS).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        val intentActions = arrayOf(
+            "android.settings.DATA_ROAMING_SETTINGS",
+            "android.settings.NETWORK_OPERATOR_SETTINGS",
+            "android.settings.SIM_SUBID_SETTINGS",
+            Settings.ACTION_WIRELESS_SETTINGS,
+            Settings.ACTION_SETTINGS
+        )
+
+        for (action in intentActions) {
+            try {
+                val intent = Intent(action).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                if (intent.resolveActivity(context.packageManager) != null || action == Settings.ACTION_SETTINGS) {
+                    context.startActivity(intent)
+                    return
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Intent action $action failed: ${e.message}")
             }
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            val intent = Intent(Settings.ACTION_SETTINGS).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            }
-            context.startActivity(intent)
         }
     }
 
