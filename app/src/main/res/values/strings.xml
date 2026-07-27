@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">AutoSwitch APK</string>
+    <string name="title_dashboard">SIM &amp; Wi-Fi Data Switcher</string>
+    <string name="subtitle_dashboard">Automatic SIM mobile data switching when Wi-Fi drops</string>
+    <string name="status_wifi_connected">Wi-Fi Connected</string>
+    <string name="status_wifi_disconnected">Wi-Fi Disconnected</string>
+    <string name="service_running">Auto-Switch Service: RUNNING</string>
+    <string name="service_stopped">Auto-Switch Service: STOPPED</string>
+    <string name="select_preferred_sim">Target SIM for Mobile Data</string>
+    <string name="sim_1">SIM 1</string>
+    <string name="sim_2">SIM 2</string>
+    <string name="enable_service">Enable Auto-Switch Background Monitor</string>
+    <string name="grant_permissions">Grant Required Permissions</string>
+    <string name="open_settings">Open Network Settings</string>
+    <string name="log_title">Event Log &amp; Activity History</string>
+</resources>
