@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Switch,
-  Linking,
   Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,14 +21,8 @@ export default function SettingsScreen() {
   const { autoSwitchEnabled, setAutoSwitchEnabled, selectedSim, setSelectedSim, openMobileSettings } =
     useNetwork();
 
-  const openDeepLink = (url: string) => {
-    if (Platform.OS === 'android') {
-      Linking.openURL(url).catch(() => {
-        openMobileSettings();
-      });
-    } else {
-      openMobileSettings();
-    }
+  const handleOpenSettings = () => {
+    openMobileSettings();
   };
 
   return (
@@ -47,7 +40,7 @@ export default function SettingsScreen() {
       <View style={styles.section}>
         <Text style={[styles.sectionHeader, { color: colors.mutedForeground }]}>APPEARANCE</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <View style={styles.themeSegmentContainer}>
+          <View style={[styles.themeSegmentContainer, { backgroundColor: colors.border + '33' }]}>
             {(['system', 'light', 'dark'] as ThemePreference[]).map((mode) => {
               const isActive = preference === mode;
               const label = mode === 'system' ? 'Auto' : mode === 'light' ? 'Light' : 'Dark';
@@ -156,7 +149,8 @@ export default function SettingsScreen() {
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <TouchableOpacity
             style={styles.actionRow}
-            onPress={() => openDeepLink('android.settings.WIRELESS_SETTINGS')}
+            onPress={handleOpenSettings}
+            activeOpacity={0.7}
           >
             <View style={styles.rowLeft}>
               <MaterialCommunityIcons name="wifi-cog" size={22} color={colors.primary} />
@@ -175,7 +169,8 @@ export default function SettingsScreen() {
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <TouchableOpacity
             style={styles.tipItem}
-            onPress={() => openDeepLink('android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS')}
+            onPress={handleOpenSettings}
+            activeOpacity={0.7}
           >
             <MaterialCommunityIcons name="battery-charging" size={20} color={colors.warning} />
             <Text style={[styles.tipText, { color: colors.foreground }]}>
@@ -187,7 +182,8 @@ export default function SettingsScreen() {
 
           <TouchableOpacity
             style={styles.tipItem}
-            onPress={() => openDeepLink('android.settings.DATA_USAGE_SETTINGS')}
+            onPress={handleOpenSettings}
+            activeOpacity={0.7}
           >
             <MaterialCommunityIcons name="database-sync" size={20} color={colors.accent} />
             <Text style={[styles.tipText, { color: colors.foreground }]}>
@@ -199,7 +195,8 @@ export default function SettingsScreen() {
 
           <TouchableOpacity
             style={styles.tipItem}
-            onPress={() => openDeepLink('android.settings.WIFI_SETTINGS')}
+            onPress={handleOpenSettings}
+            activeOpacity={0.7}
           >
             <MaterialCommunityIcons name="swap-vertical-bold" size={20} color={colors.primary} />
             <Text style={[styles.tipText, { color: colors.foreground }]}>
@@ -247,7 +244,6 @@ const styles = StyleSheet.create({
   },
   themeSegmentContainer: {
     flexDirection: 'row',
-    backgroundColor: '#00000008',
     borderRadius: 12,
     padding: 4,
   },

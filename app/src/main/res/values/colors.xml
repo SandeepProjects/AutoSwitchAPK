@@ -1,20 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <!-- Basic Palette -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    
-    <color name="primary">#F0F4FF</color>
+    <color name="transparent">#00000000</color>
+
+    <!-- Dynamic Theme Adaptive Tokens (Light Mode Defaults) -->
+    <color name="bg_app">#F0F4FF</color>
+    <color name="card_app">#FFFFFF</color>
+    <color name="card_border_app">#E2E8F0</color>
+    <color name="text_primary_app">#0F172A</color>
+    <color name="text_secondary_app">#64748B</color>
+
+    <!-- Light Theme Specific -->
+    <color name="bg_light">#F0F4FF</color>
+    <color name="card_light">#FFFFFF</color>
+    <color name="card_border_light">#E2E8F0</color>
+    <color name="text_primary_light">#0F172A</color>
+    <color name="text_secondary_light">#64748B</color>
+
+    <!-- Dark Theme Specific -->
+    <color name="bg_dark">#050B18</color>
+    <color name="card_dark">#0D1526</color>
+    <color name="card_border_dark">#1A2B45</color>
+    <color name="text_primary_dark">#F0F4FF</color>
+    <color name="text_secondary_dark">#8896A8</color>
+
+    <!-- Brand & Accent Colors -->
+    <color name="cyan_primary">#00C8FF</color>
+    <color name="cyan_primary_light">#0062FF</color>
+    <color name="emerald_accent">#00E87A</color>
+    <color name="amber_warning">#FFB020</color>
+    <color name="red_destructive">#FF3B3B</color>
+
+    <!-- Status Colors -->
+    <color name="status_green">#00E87A</color>
+    <color name="status_amber">#FFB020</color>
+    <color name="status_red">#FF3B3B</color>
+
+    <!-- Legacy Compatibility Keys -->
+    <color name="primary">#050B18</color>
     <color name="primary_text">#0F172A</color>
-    <color name="accent">#0062FF</color>
-    <color name="status_green">#00C97A</color>
-    <color name="status_amber">#F59E0B</color>
-    <color name="status_red">#EF4444</color>
+    <color name="accent">#00C8FF</color>
     <color name="card_bg">#FFFFFF</color>
     <color name="text_muted">#64748B</color>
     <color name="border_color">#E2E8F0</color>
+
+    <!-- Translucent Overlay / Pulse Ring Colors -->
+    <color name="pulse_cyan_outer">#1A00C8FF</color>
+    <color name="pulse_cyan_inner">#3300C8FF</color>
+    <color name="pulse_green_outer">#1A00E87A</color>
+    <color name="pulse_green_inner">#3300E87A</color>
+    <color name="pulse_red_outer">#1AFF3B3B</color>
+    <color name="pulse_red_inner">#33FF3B3B</color>
+
+    <!-- Bottom Navigation Colors -->
+    <color name="nav_active_indicator">#1F00C8FF</color>
+    <color name="nav_bg">#FFFFFF</color>
 </resources>

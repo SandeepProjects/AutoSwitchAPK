@@ -10,6 +10,7 @@ import android.telephony.TelephonyManager
 import android.util.Log
 import com.autoswitch.apk.model.SimInfo
 import java.io.DataOutputStream
+import java.io.File
 
 /**
  * Handles SIM card discovery, default data SIM inspection, and automatic SIM switching.
@@ -23,6 +24,32 @@ class SimSwitchManager(private val context: Context) {
         context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
     private val prefs = PreferencesManager(context)
+
+    /**
+     * Checks if the device has root access available.
+     */
+    fun isRootAvailable(): Boolean {
+        val paths = arrayOf(
+            "/system/app/Superuser.apk",
+            "/sbin/su",
+            "/system/bin/su",
+            "/system/xbin/su",
+            "/data/local/xbin/su",
+            "/data/local/bin/su",
+            "/system/sd/xbin/su",
+            "/system/bin/failsafe/su",
+            "/data/local/su"
+        )
+        for (path in paths) {
+            if (File(path).exists()) return true
+        }
+        return try {
+            val process = Runtime.getRuntime().exec("which su")
+            process.inputStream.bufferedReader().use { it.readText() }.isNotEmpty()
+        } catch (e: Exception) {
+            false
+        }
+    }
 
     /**
      * Retrieves all active SIM card subscriptions on the device.
@@ -57,6 +84,7 @@ class SimSwitchManager(private val context: Context) {
 
     /**
      * Executes mobile data switch to the target subscription ID or slot index.
+     * Returns true if switching via root/system methods succeeded, false if falling back to guided manual settings.
      */
     fun switchToSim(targetSubId: Int, slotIndex: Int): Boolean {
         Log.i(TAG, "Attempting data switch to SubId: $targetSubId (Slot: $slotIndex)")

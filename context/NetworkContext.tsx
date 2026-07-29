@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { Alert, Linking, Platform } from 'react-native';
+import { Alert, Linking } from 'react-native';
 import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -35,7 +35,18 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [netState, setNetState] = useState<NetInfoState | null>(null);
   const [autoSwitchEnabled, setAutoSwitchState] = useState<boolean>(true);
   const [selectedSim, setSelectedSimState] = useState<string>('SIM 1');
+
+  const autoSwitchRef = useRef(autoSwitchEnabled);
+  const selectedSimRef = useRef(selectedSim);
   const prevConnectionType = useRef<string | null>(null);
+
+  useEffect(() => {
+    autoSwitchRef.current = autoSwitchEnabled;
+  }, [autoSwitchEnabled]);
+
+  useEffect(() => {
+    selectedSimRef.current = selectedSim;
+  }, [selectedSim]);
 
   useEffect(() => {
     AsyncStorage.getItem(SETTINGS_STORAGE_KEY).then((data) => {
@@ -58,15 +69,14 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setNetState(state);
       const currentType = state.type;
 
-      // Detect transition from 'wifi' to 'none' or 'cellular'
       if (
         prevConnectionType.current === 'wifi' &&
         currentType !== 'wifi' &&
-        autoSwitchEnabled
+        autoSwitchRef.current
       ) {
         Alert.alert(
           'Wi-Fi Connection Lost',
-          `Auto-Switch is active. Would you like to switch mobile data to ${selectedSim}?`,
+          `Auto-Switch is active. Would you like to switch mobile data to ${selectedSimRef.current}?`,
           [
             { text: 'Dismiss', style: 'cancel' },
             {
@@ -81,7 +91,7 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
 
     return () => unsubscribe();
-  }, [autoSwitchEnabled, selectedSim]);
+  }, []);
 
   const setAutoSwitchEnabled = (enabled: boolean) => {
     setAutoSwitchState(enabled);
@@ -100,26 +110,10 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const openMobileSettings = async () => {
-    if (Platform.OS === 'android') {
-      const intents = [
-        'android.settings.DATA_ROAMING_SETTINGS',
-        'android.settings.NETWORK_OPERATOR_SETTINGS',
-        'android.settings.WIRELESS_SETTINGS',
-      ];
-      for (const intentUrl of intents) {
-        try {
-          const supported = await Linking.canOpenURL(intentUrl).catch(() => true);
-          if (supported) {
-            await Linking.openURL(intentUrl);
-            return;
-          }
-        } catch (e) {
-          // Continue to next fallback intent
-        }
-      }
-      Linking.openSettings().catch(() => {});
-    } else {
-      Linking.openSettings().catch(() => {});
+    try {
+      await Linking.openSettings();
+    } catch (e) {
+      console.warn('Could not open system settings', e);
     }
   };
 

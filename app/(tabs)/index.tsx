@@ -84,11 +84,7 @@ export default function HomeScreen() {
     ? colors.primary
     : colors.destructive;
 
-  const orbBgColor = isWifi
-    ? '#E6F9F0'
-    : isCellular
-    ? '#E0F2FE'
-    : '#FEE2E2';
+  const orbBgColor = statusColor + '20';
 
   const titleText = isWifi
     ? ssid || 'Wi-Fi Network'
@@ -123,9 +119,9 @@ export default function HomeScreen() {
           </Text>
         </View>
 
-        <View style={styles.activeBadge}>
-          <View style={styles.badgeDot} />
-          <Text style={styles.badgeText}>Active</Text>
+        <View style={[styles.activeBadge, { backgroundColor: colors.accent + '15', borderColor: colors.accent + '40' }]}>
+          <View style={[styles.badgeDot, { backgroundColor: colors.accent }]} />
+          <Text style={[styles.badgeText, { color: colors.accent }]}>Active</Text>
         </View>
       </View>
 
@@ -142,6 +138,8 @@ export default function HomeScreen() {
                 height: orbSize * 0.75,
                 borderRadius: (orbSize * 0.75) / 2,
                 backgroundColor: orbBgColor,
+                borderColor: statusColor + '40',
+                borderWidth: 1,
               },
             ]}
           >
@@ -166,7 +164,7 @@ export default function HomeScreen() {
         {/* Row 1: Auto-Switch */}
         <View style={styles.cardRow}>
           <View style={styles.cardRowLeft}>
-            <View style={[styles.iconContainer, { backgroundColor: '#E0F2FE' }]}>
+            <View style={[styles.iconContainer, { backgroundColor: colors.primary + '20' }]}>
               <MaterialCommunityIcons name="swap-horizontal" size={20} color={colors.primary} />
             </View>
             <Text style={[styles.cardLabel, { color: colors.foreground }]}>Auto-Switch</Text>
@@ -181,7 +179,7 @@ export default function HomeScreen() {
         {/* Row 2: Internet */}
         <View style={styles.cardRow}>
           <View style={styles.cardRowLeft}>
-            <View style={[styles.iconContainer, { backgroundColor: '#E6F9F0' }]}>
+            <View style={[styles.iconContainer, { backgroundColor: colors.success + '20' }]}>
               <MaterialCommunityIcons name="check-circle-outline" size={20} color={colors.success} />
             </View>
             <Text style={[styles.cardLabel, { color: colors.foreground }]}>Internet</Text>
@@ -231,22 +229,18 @@ const styles = StyleSheet.create({
   activeBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E6F9F0',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#A7F3D0',
   },
   badgeDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#00C97A',
     marginRight: 6,
   },
   badgeText: {
-    color: '#00C97A',
     fontSize: 13,
     fontWeight: '600',
   },
